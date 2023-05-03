@@ -45,10 +45,7 @@ def result():
     if flask.request.method == "POST":
         session_id = flask.request.form.get("session_id")
         score = 100-list(flask.request.form.values()).count("on")
-        scores = [
-            int(row["score"]) for row in record(session_id, score)
-            if "score" in row.keys()
-        ]
+        scores = record(session_id, score)
         average = f'{statistics.mean(scores):.1f}'
         median = f'{statistics.median(scores):.1f}'
         return flask.render_template(
@@ -69,7 +66,7 @@ def record(session_id: str, score: int) -> list[int]:
         writer = csv.DictWriter(open_file, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
-    return rows
+    return [int(row["score"]) for row in rows if "score" in row.keys()]
 
 
 def validate_session(
@@ -87,4 +84,4 @@ def validate_session(
         start = datetime.datetime.strptime(session_rows[0]["start"], "%x_%X")
         if (stop-start).total_seconds() < 30:
             rows.remove(session_rows[0])
-    return [row for row in rows if all(row.values())]
+    return [row for row in rows if all(row.values()) and len(row) == 4]
