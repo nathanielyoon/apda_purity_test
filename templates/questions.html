@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>{% block title %}APDA Purity Test{% endblock %}</title>
+    <style>
+        body {
+            padding: 10px;
+            font-size: 20px;
+            background-color: black;
+            color: white;
+        }
+        input[type=submit] {
+            background-color: white;
+            color: black;
+            border: none;
+            padding: 5px 10px;
+            margin: 4px 2px;
+        }
+    </style>
+</head>
+<body>
+    <form action='{{ url_for("result") }}' method="POST">
+        <fieldset>
+            <legend>Select every item you have done.</legend>
+            {% for question in questions %}
+            <div>
+                <input type="checkbox" id='{{ question["index"] }}' name='{{ question["index"] }}'>
+                <label for='{{ question["index"] }}'>{{ question["item"] }}</label>
+            <div>
+            {% endfor %}
+            <input type="hidden" name="session_id" value='{{ session_id }}'>
+            <input type="submit" value="Calculate my score">
+        </fieldset>
+    </form>
+</body>
+</html>

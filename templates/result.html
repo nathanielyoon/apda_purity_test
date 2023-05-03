@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <title>{% block title %}APDA Purity Test{% endblock %}</title>
+    <style>
+        body {
+            padding: 10px;
+            font-size: 20px;
+            background-color: black;
+            color: white;
+        }
+        a {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+  <h2>Your APDA Purity Score: {{ result }}</h2>
+  <a href='{{ url_for("questions") }}'>Return</a>
+  <p>Average: {{ average }}<br>Median: {{ median }}</p>
+</body>
+</html>
