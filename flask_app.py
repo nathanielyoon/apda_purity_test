@@ -83,8 +83,8 @@ def validate_session(
             "stop": f'{datetime.datetime.now():%x_%X}',
             "score": score
         })
-        start = datetime.datetime.strptime(session_rows[0]["start"], "%x_%X")
         stop = datetime.datetime.strptime(session_rows[0]["stop"], "%x_%X")
+        start = datetime.datetime.strptime(session_rows[0]["start"], "%x_%X")
         if (stop-start).total_seconds() < 30:
             rows.remove(session_rows[0])
     return [row for row in rows if all(row.values())]
