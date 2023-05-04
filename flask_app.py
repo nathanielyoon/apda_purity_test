@@ -21,7 +21,7 @@ def favicon():
 
 @app.route("/")
 def questions():
-    with open("items.txt", "r") as open_file:
+    with open("/home/apdapuritytest/apda_purity_test/items.txt", "r") as open_file:
         lines = open_file.read().splitlines()
     items = [
         {"index": index, "item": line}
@@ -31,7 +31,7 @@ def questions():
         "session_id": uuid.uuid4().hex,
         "start": f'{datetime.datetime.now():%x_%X}'
     }
-    with open("scores.csv", "a+") as open_file:
+    with open("/home/apdapuritytest/apda_purity_test/scores.csv", "a+") as open_file:
         writer = csv.DictWriter(open_file, fieldnames=new_session.keys())
         writer.writerow(new_session)
     return flask.render_template(
@@ -60,10 +60,10 @@ def result():
 
 
 def record(session_id: str, score: int) -> tuple[float, list[int]]:
-    with open("scores.csv", "r") as open_file:
+    with open("/home/apdapuritytest/apda_purity_test/scores.csv", "r") as open_file:
         rows = list(csv.DictReader(open_file))
     rows = validate_session(rows, session_id, score)
-    with open("scores.csv", "w") as open_file:
+    with open("/home/apdapuritytest/apda_purity_test/scores.csv", "w") as open_file:
         writer = csv.DictWriter(open_file, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
@@ -95,4 +95,4 @@ def score_percentile(scores: list[int], score: int) -> str:
         lower = len([low_score for low_score in scores if low_score < score])
         return f'higher than {lower}/{len(scores)} (top {101-percentile:.0f}%)'
     higher = len([high_score for high_score in scores if high_score > score])
-    return f'lower than {higher}/{len(scores)} (bottom {percentile:0f}%)'
+    return f'lower than {higher}/{len(scores)} (bottom {percentile:.0f}%)'
