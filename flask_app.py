@@ -3,6 +3,7 @@ import csv
 import datetime
 import statistics
 import uuid
+from scipy import stats
 
 import flask
 
@@ -45,12 +46,12 @@ def result():
     if flask.request.method == "POST":
         session_id = flask.request.form.get("session_id")
         score = 100-list(flask.request.form.values()).count("on")
-        scores = record(session_id, score)
+        percentile, scores = record(session_id, score)
         average = f'{statistics.mean(scores):.1f}'
         median = f'{statistics.median(scores):.1f}'
         return flask.render_template(
             "result.html",
-            result=str(score),
+            result=f'{score} - {percentile}',
             average=average,
             median=median
         )
@@ -58,7 +59,7 @@ def result():
         return flask.redirect("/")
 
 
-def record(session_id: str, score: int) -> list[int]:
+def record(session_id: str, score: int) -> tuple[float, list[int]]:
     with open("scores.csv", "r") as open_file:
         rows = list(csv.DictReader(open_file))
     rows = validate_session(rows, session_id, score)
@@ -66,7 +67,8 @@ def record(session_id: str, score: int) -> list[int]:
         writer = csv.DictWriter(open_file, fieldnames=rows[0].keys())
         writer.writeheader()
         writer.writerows(rows)
-    return [int(row["score"]) for row in rows if "score" in row.keys()]
+    all_scores = [int(row["score"]) for row in rows if "score" in row.keys()]
+    return score_percentile(all_scores, score), all_scores
 
 
 def validate_session(
@@ -85,3 +87,12 @@ def validate_session(
         if (stop-start).total_seconds() < 30:
             rows.remove(session_rows[0])
     return [row for row in rows if all(row.values()) and len(row) == 4]
+
+
+def score_percentile(scores: list[int], score: int) -> str:
+    percentile = stats.percentileofscore(scores, score)
+    if percentile > 50:
+        lower = len([low_score for low_score in scores if low_score < score])
+        return f'higher than {lower}/{len(scores)} (top {101-percentile:.0f}%)'
+    higher = len([high_score for high_score in scores if high_score > score])
+    return f'lower than {higher}/{len(scores)} (bottom {percentile:0f}%)'
